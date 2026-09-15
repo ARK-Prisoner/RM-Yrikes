@@ -20,7 +20,8 @@ version = 0.1
 
 # (list) 运行时依赖
 # 通过 p4a.branch 锁定 python-for-android 到 v2024.01.21（其默认 Python 3.11.5，Kivy 2.3.x 兼容）
-requirements = python3,kivy==2.3.1
+# filetype：Kivy 2.3.x 启动时强制依赖，p4a 无对应配方，需手动加入以便 pip 安装
+requirements = python3,kivy==2.3.1,filetype==1.2.0
 
 # (str) 锁定的 python-for-android 版本（新版默认 Python 3.14，Kivy 2.3.x 无法编译）
 p4a.branch = v2024.01.21
