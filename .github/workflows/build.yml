@@ -41,8 +41,13 @@ jobs:
             ~/.cache/pip
           key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
 
+      - name: Remove preinstalled Android SDK (free disk / avoid conflict)
+        run: sudo rm -rf /usr/local/lib/android
+
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          unset ANDROID_HOME ANDROID_SDK_ROOT ANDROID_NDK_HOME ANDROID_NDK_ROOT ANDROID_NDK
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

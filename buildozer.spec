@@ -34,6 +34,9 @@ fullscreen = 0
 # (str) 支持的 CPU 架构
 android.archs = arm64-v8a, armeabi-v7a
 
+# (str) Android NDK 版本（锁定 r25b，与 python3.11 + kivy 兼容；默认 r28c 过新会导致编译失败）
+android.ndk = 25b
+
 # (int) 目标 Android API 版本
 android.api = 33
 
