@@ -19,9 +19,11 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,otf,ttc
 version = 0.1
 
 # (list) 运行时依赖
-# 锁定 Python 版本：最新 p4a 默认 Python 3.14，Kivy 2.3.x 不支持，会导致编译失败
-# python3 与 hostpython3 必须同版本，因此两个都要锁为 3.11
-requirements = python3==3.11,hostpython3==3.11,kivy==2.3.1
+# 通过 p4a.branch 锁定 python-for-android 到 v2024.01.21（其默认 Python 3.11.5，Kivy 2.3.x 兼容）
+requirements = python3,kivy==2.3.1
+
+# (str) 锁定的 python-for-android 版本（新版默认 Python 3.14，Kivy 2.3.x 无法编译）
+p4a.branch = v2024.01.21
 
 # (str) 应用入口（默认 main.py）
 #source.include_patterns = main.py
