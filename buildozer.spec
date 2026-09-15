@@ -1,0 +1,61 @@
+[app]
+
+# (str) 应用显示名称（可含中文）
+title = 攒钻抽卡计算器
+
+# (str) 包名（仅小写字母、数字、点、下划线）
+package.name = gachacalc
+
+# (str) 包域名，最终包名为 package.domain.package.name
+package.domain = org.gachacalc
+
+# (str) 源码目录（默认当前目录）
+source.dir = .
+
+# (str) 需要打包进 APK 的文件扩展名（注意包含 otf 字体）
+source.include_exts = py,png,jpg,kv,atlas,ttf,otf,ttc
+
+# (str) 应用版本号
+version = 0.1
+
+# (list) 运行时依赖
+requirements = python3,kivy==2.3.0
+
+# (str) 应用入口（默认 main.py）
+#source.include_patterns = main.py
+
+# (str) 屏幕方向
+orientation = portrait
+
+# (bool) 是否全屏
+fullscreen = 0
+
+# (str) 支持的 CPU 架构
+android.archs = arm64-v8a, armeabi-v7a
+
+# (int) 目标 Android API 版本
+android.api = 33
+
+# (int) 最低支持的 Android 版本
+android.minapi = 21
+
+# (bool) 自动接受 SDK 许可协议
+android.accept_sdk_license = True
+
+# (list) 需要的权限（本应用无需额外权限）
+# android.permissions = INTERNET
+
+# (bool) 允许系统备份应用数据
+android.allow_backup = True
+
+# (str) 应用标签图标与启动画面（可选，缺省即可）
+# icon.filename = %(source.dir)s/icon.png
+# presplash.filename = %(source.dir)s/presplash.png
+
+[buildozer]
+
+# (int) 日志级别：0 = 仅错误，1 = 信息，2 = 调试
+log_level = 2
+
+# (int) 编译时显示警告级别
+warn_on_root = 1
