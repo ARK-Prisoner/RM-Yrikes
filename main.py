@@ -35,6 +35,7 @@ MORANDI_PINK = "#D5B8B0"
 MORANDI_PURPLE = "#B0A5C0"
 MORANDI_TEXT = "#5C5C5C"
 MORANDI_BORDER = "#D8CFC4"
+DEBUG_FPS = True
 
 
 def rgb(hexstr):
@@ -97,35 +98,44 @@ def count_month_starts(start, end):
 
 
 def enable_high_refresh_rate(target=144.0):
-    """安卓端向系统请求最高屏幕刷新率（默认 144Hz）；桌面端自动跳过。"""
+    """安卓端在 UI 线程向系统请求最高屏幕刷新率（默认 144Hz）；桌面端自动跳过。"""
     try:
         from android import mActivity
+        from android.runnable import run_on_ui_thread
     except Exception:
         return
-    try:
-        window = mActivity.getWindow()
-        attrs = window.getAttributes()
+
+    @run_on_ui_thread
+    def _apply():
         try:
-            attrs.preferredRefreshRate = float(target)
-        except Exception:
-            pass
-        try:
-            display = window.getWindowManager().getDefaultDisplay()
-            current = display.getMode()
-            best = None
-            for mode in display.getSupportedModes():
-                same_res = (mode.getPhysicalWidth() == current.getPhysicalWidth()
-                            and mode.getPhysicalHeight() == current.getPhysicalHeight())
-                if same_res and (best is None
-                                 or mode.getRefreshRate() > best.getRefreshRate()):
-                    best = mode
-            if best is not None:
-                attrs.preferredDisplayModeId = best.getModeId()
-        except Exception:
-            pass
-        window.setAttributes(attrs)
-    except Exception:
-        pass
+            window = mActivity.getWindow()
+            attrs = window.getAttributes()
+            try:
+                attrs.preferredRefreshRate = float(target)
+            except Exception as exc:
+                print("refresh-rate: preferredRefreshRate failed: %r" % (exc,))
+            try:
+                display = window.getWindowManager().getDefaultDisplay()
+                current = display.getMode()
+                best = None
+                for mode in display.getSupportedModes():
+                    same_res = (mode.getPhysicalWidth() == current.getPhysicalWidth()
+                                and mode.getPhysicalHeight() == current.getPhysicalHeight())
+                    if same_res and (best is None
+                                     or mode.getRefreshRate() > best.getRefreshRate()):
+                        best = mode
+                if best is not None:
+                    attrs.preferredDisplayModeId = best.getModeId()
+                    print("refresh-rate: chose mode %s @ %.1fHz"
+                          % (best.getModeId(), best.getRefreshRate()))
+            except Exception as exc:
+                print("refresh-rate: mode pick failed: %r" % (exc,))
+            window.setAttributes(attrs)
+            print("refresh-rate: applied (target=%.0f)" % target)
+        except Exception as exc:
+            print("refresh-rate: apply failed: %r" % (exc,))
+
+    _apply()
 
 
 # ---------------------------------------------------------------------------
@@ -654,6 +664,11 @@ class GachaCalcApp(App):
 
     def on_start(self):
         enable_high_refresh_rate()
+        if DEBUG_FPS:
+            Clock.schedule_interval(self._log_fps, 2.0)
+
+    def _log_fps(self, dt):
+        print("FPS = %.1f" % Clock.get_fps())
 
 
 if __name__ == "__main__":
