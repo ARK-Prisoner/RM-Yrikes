@@ -31,12 +31,24 @@ MORANDI_PINK = "#D5B8B0"
 MORANDI_PURPLE = "#B0A5C0"
 MORANDI_TEXT = "#5C5C5C"
 MORANDI_BORDER = "#D8CFC4"
-FIELD_BG = "#FFFFFF"
 
 
 def rgb(hexstr):
     h = hexstr.lstrip("#")
     return [int(h[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+
+
+def style_input(widget):
+    """把所有输入控件统一成与 TextInput 完全相同的背景贴图。"""
+    atlas = "atlas://data/images/defaulttheme/textinput"
+    for attr in ("background_normal", "background_down", "background_active",
+                 "background_disabled_normal", "background_disabled_active"):
+        if hasattr(widget, attr):
+            setattr(widget, attr, atlas)
+    if hasattr(widget, "background_color"):
+        widget.background_color = (1, 1, 1, 1)
+    if hasattr(widget, "border"):
+        widget.border = [4, 4, 4, 4]
 
 
 FONT = "Roboto"
@@ -434,9 +446,8 @@ class GachaCalcUI(BoxLayout):
     def _date_button(self, d):
         b = Button(text=d.strftime("%Y-%m-%d"), font_name=FONT, font_size=sp(14),
                    color=rgb(MORANDI_TEXT) + [1],
-                   size_hint_x=0.56, size_hint_y=None, height=dp(38),
-                   background_normal="", background_down="",
-                   background_color=rgb(FIELD_BG) + [1])
+                   size_hint_x=0.56, size_hint_y=None, height=dp(38))
+        style_input(b)
         return b
 
     def _add_num_field(self, card, label, key, default, store, on_text=None):
@@ -446,10 +457,10 @@ class GachaCalcUI(BoxLayout):
         ti = TextInput(text=str(default), multiline=False, input_filter="int",
                        halign="center", font_size=sp(14), font_name=FONT,
                        size_hint_x=0.56, size_hint_y=None, height=dp(38),
-                       background_color=rgb(FIELD_BG) + [1],
                        foreground_color=rgb(MORANDI_TEXT) + [1],
                        cursor_color=rgb(MORANDI_BLUE) + [1],
                        padding=[dp(8), dp(8), dp(8), dp(8)], write_tab=False)
+        style_input(ti)
         if on_text:
             ti.bind(text=on_text)
         row.add_widget(ti)
@@ -465,9 +476,8 @@ class GachaCalcUI(BoxLayout):
         spn = Spinner(text=str(default), values=[str(v) for v in values],
                       font_name=FONT, font_size=sp(14),
                       color=rgb(MORANDI_TEXT) + [1],
-                      background_normal="", background_down="",
-                      background_color=rgb(FIELD_BG) + [1],
                       size_hint=(1, 1), pos_hint={"x": 0, "y": 0})
+        style_input(spn)
         holder.add_widget(spn)
         arrow = ArrowDown(size_hint=(None, None), size=(dp(10), dp(6)))
         arrow.pos_hint = {"right": 0.95, "center_y": 0.5}
