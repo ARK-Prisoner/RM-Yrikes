@@ -6,16 +6,18 @@ from datetime import date, timedelta
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.text import LabelBase
-from kivy.graphics import Color, Rectangle, RoundedRectangle
+from kivy.graphics import Color, Rectangle, RoundedRectangle, Triangle
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.modalview import ModalView
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.spinner import Spinner
 from kivy.uix.textinput import TextInput
+from kivy.uix.widget import Widget
 
 # ---------------------------------------------------------------------------
 # 颜色（莫兰迪色系，与原 tkinter 版保持一致）
@@ -76,6 +78,23 @@ def count_month_starts(start, end):
             count += 1
         d += timedelta(days=1)
     return count
+
+
+# ---------------------------------------------------------------------------
+# 下拉箭头（用 canvas 画三角形，避免字体缺字）
+# ---------------------------------------------------------------------------
+class ArrowDown(Widget):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        with self.canvas:
+            Color(*rgb(MORANDI_BLUE))
+            self._tri = Triangle(points=[])
+        self.bind(pos=self._update, size=self._update)
+        self._update()
+
+    def _update(self, *a):
+        x, y, w, h = self.x, self.y, self.width, self.height
+        self._tri.points = [x, y + h, x + w, y + h, x + w / 2.0, y]
 
 
 # ---------------------------------------------------------------------------
@@ -416,6 +435,7 @@ class GachaCalcUI(BoxLayout):
         b = Button(text=d.strftime("%Y-%m-%d"), font_name=FONT, font_size=sp(14),
                    color=rgb(MORANDI_TEXT) + [1],
                    size_hint_x=0.56, size_hint_y=None, height=dp(38),
+                   background_normal="", background_down="",
                    background_color=rgb(FIELD_BG) + [1])
         return b
 
@@ -429,7 +449,7 @@ class GachaCalcUI(BoxLayout):
                        background_color=rgb(FIELD_BG) + [1],
                        foreground_color=rgb(MORANDI_TEXT) + [1],
                        cursor_color=rgb(MORANDI_BLUE) + [1],
-                       padding_x=dp(8), padding_y=dp(8), write_tab=False)
+                       padding=[dp(8), dp(8), dp(8), dp(8)], write_tab=False)
         if on_text:
             ti.bind(text=on_text)
         row.add_widget(ti)
@@ -441,12 +461,18 @@ class GachaCalcUI(BoxLayout):
         row = BoxLayout(orientation="horizontal", size_hint_y=None,
                         height=dp(44), spacing=dp(8))
         row.add_widget(self._field_label(label))
+        holder = FloatLayout(size_hint_x=0.56, size_hint_y=None, height=dp(38))
         spn = Spinner(text=str(default), values=[str(v) for v in values],
                       font_name=FONT, font_size=sp(14),
                       color=rgb(MORANDI_TEXT) + [1],
-                      size_hint_x=0.56, size_hint_y=None, height=dp(38),
-                      background_color=rgb(FIELD_BG) + [1])
-        row.add_widget(spn)
+                      background_normal="", background_down="",
+                      background_color=rgb(FIELD_BG) + [1],
+                      size_hint=(1, 1), pos_hint={"x": 0, "y": 0})
+        holder.add_widget(spn)
+        arrow = ArrowDown(size_hint=(None, None), size=(dp(10), dp(6)))
+        arrow.pos_hint = {"right": 0.95, "center_y": 0.5}
+        holder.add_widget(arrow)
+        row.add_widget(holder)
         card.add_widget(row)
         store[key] = spn
         return spn
