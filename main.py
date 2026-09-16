@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-import math
 import os
+
+# 解除 Kivy 默认 60fps 上限（必须在导入 kivy 之前设置；配置项名是 maxfps）
+os.environ.setdefault("KCFG_GRAPHICS_MAXFPS", "144")
+
+import math
 from datetime import date, timedelta
 
 from kivy.app import App
@@ -90,6 +94,38 @@ def count_month_starts(start, end):
             count += 1
         d += timedelta(days=1)
     return count
+
+
+def enable_high_refresh_rate(target=144.0):
+    """安卓端向系统请求最高屏幕刷新率（默认 144Hz）；桌面端自动跳过。"""
+    try:
+        from android import mActivity
+    except Exception:
+        return
+    try:
+        window = mActivity.getWindow()
+        attrs = window.getAttributes()
+        try:
+            attrs.preferredRefreshRate = float(target)
+        except Exception:
+            pass
+        try:
+            display = window.getWindowManager().getDefaultDisplay()
+            current = display.getMode()
+            best = None
+            for mode in display.getSupportedModes():
+                same_res = (mode.getPhysicalWidth() == current.getPhysicalWidth()
+                            and mode.getPhysicalHeight() == current.getPhysicalHeight())
+                if same_res and (best is None
+                                 or mode.getRefreshRate() > best.getRefreshRate()):
+                    best = mode
+            if best is not None:
+                attrs.preferredDisplayModeId = best.getModeId()
+        except Exception:
+            pass
+        window.setAttributes(attrs)
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -615,6 +651,9 @@ class GachaCalcApp(App):
     def build(self):
         setup_font()
         return GachaCalcUI()
+
+    def on_start(self):
+        enable_high_refresh_rate()
 
 
 if __name__ == "__main__":
